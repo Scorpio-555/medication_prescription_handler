@@ -240,6 +240,8 @@ public class Main {
         allOnes.setPillsRemainingInBottle(1);
         generalHandlerAdd.addHandler(allOnes);
 
+        generalHandlerAdd.addHandler(allOnes);
+
         generalHandlerAdd.run();
 
         //Generating list of single handlers and running general handler

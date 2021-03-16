@@ -159,48 +159,48 @@ public class Main {
         } catch (Exception e) {
             assertTrue("expected different error message for setting takeMedicationThisManyTimesADay to be < 1",e.getMessage().equals("Number of times a day to take medication must be greater than zero"));
         }
-        assertTrue(badInputHandler.getTakeMedicationThisManyTimesADay() == 1);
+        assertTrue("times taken in a day should be zero",badInputHandler.getTakeMedicationThisManyTimesADay() == 0);
 
         try {
             badInputHandler.setTakeMedicationThisManyTimesADay(-1);
         } catch (Exception e) {
             assertTrue("expected different error message for setting takeMedicationThisManyTimesADay to be < 1",e.getMessage().equals("Number of times a day to take medication must be greater than zero"));
         }
-        assertTrue(badInputHandler.getTakeMedicationThisManyTimesADay() == 1);
+        assertTrue("times taken in a day should be zero",badInputHandler.getTakeMedicationThisManyTimesADay() == 0);
 
-        //Testing invalid input for milligramDosageInASinglePill
-        System.out.println("Testing invalid input for milligramDosageInASinglePill -----------------------------");
+        //Testing invalid input for milligramDosageInASingleTablet
+        System.out.println("Testing invalid input for milligramDosageInASingleTablet----------------------------");
         System.out.println();
 
         try {
-            badInputHandler.setMilligramDosageInASinglePill(0);
+            badInputHandler.setMilligramDosageInASinglePilTablet(0);
         } catch (Exception e) {
             assertTrue("expected different error message for setting milligramDosageInASinglePill to be < 1",e.getMessage().equals("Dosage of a single pill must be greater than zero"));
         }
 
         try {
-            badInputHandler.setMilligramDosageInASinglePill(-1);
+            badInputHandler.setMilligramDosageInASinglePilTablet(-1);
         } catch (Exception e) {
             assertTrue("expected different error message for setting milligramDosageInASinglePill to be < 1",e.getMessage().equals("Dosage of a single pill must be greater than zero"));
         }
-        assertTrue(badInputHandler.getMilligramDosageInASinglePill() == 0);
+        assertTrue("mg dosage should be zero",badInputHandler.getMilligramDosageInASingleTablet() == 0);
 
-        //Testing invalid input for milligramDosagePrescribed
-        System.out.println("Testing invalid input for milligramDosagePrescribed---------------------------------");
+        //Testing invalid input for takeThisManyTabletsAtaTime
+        System.out.println("Testing invalid input for takeThisManyTabletsAtaTime--------------------------------");
         System.out.println();
 
         try {
-            badInputHandler.setMilligramDosagePrescribed(0);
+            badInputHandler.setTakeThisManyTabletsAtaTime(0);
         } catch (Exception e) {
-            assertTrue("expected different error message for setting milligramDosagePrescribed to be < 1",e.getMessage().equals("Prescribed Dosage must be greater than zero"));
+            assertTrue("expected different error message for setting takeThisManyTabletsAtaTime to be < 1",e.getMessage().equals("Number of Tablets must be greater than zero"));
         }
 
         try {
-            badInputHandler.setMilligramDosagePrescribed(-1);
+            badInputHandler.setTakeThisManyTabletsAtaTime(-1);
         } catch (Exception e) {
-            assertTrue("expected different error message for setting milligramDosagePrescribed to be < 1",e.getMessage().equals("Prescribed Dosage must be greater than zero"));
+            assertTrue("expected different error message for setting takeThisManyTabletsAtaTime to be < 1",e.getMessage().equals("Number of Tablets must be greater than zero"));
         }
-        assertTrue(badInputHandler.getMilligramDosagePrescribed() == 0);
+        assertTrue("# of tablets should be zero",badInputHandler.getTakeThisManyTabletsAtaTime() == 0);
 
         //Testing invalid input for pillsRemainingInBottle
         System.out.println("Testing invalid input for pillsRemainingInBottle------------------------------------");
@@ -211,7 +211,36 @@ public class Main {
         } catch (Exception e) {
             assertTrue("expected different error message for setting pillsRemainingInBottle to be < 0",e.getMessage().equals("Pills remaining can't be negative"));
         }
-        assertTrue(badInputHandler.getPillsRemainingInBottle() == 0);
+        assertTrue( "pills remaining should be -1",badInputHandler.getPillsRemainingInBottle() == -1);
+
+        //Testing addHandler
+        System.out.println("Testing addHandler------------------------------------------------------------------");
+        System.out.println();
+
+        MedicationPrescriptionGeneralHandler generalHandlerAdd = new MedicationPrescriptionGeneralHandler();
+
+        SingleMedicationPrescriptionHandler allOnes = new SingleMedicationPrescriptionHandler();
+        generalHandlerAdd.addHandler(allOnes);
+
+        allOnes.set_prescriptionName("allOnes");
+        generalHandlerAdd.addHandler(allOnes);
+
+        allOnes.setPrescriptionExpiration(today.getYear(), today.getMonthValue(), today.getDayOfMonth());
+        generalHandlerAdd.addHandler(allOnes);
+
+        allOnes.setTakeThisManyTabletsAtaTime(1);
+        generalHandlerAdd.addHandler(allOnes);
+
+        allOnes.setTakeMedicationThisManyTimesADay(1);
+        generalHandlerAdd.addHandler(allOnes);
+
+        allOnes.setMilligramDosageInASinglePilTablet(1);
+        generalHandlerAdd.addHandler(allOnes);
+
+        allOnes.setPillsRemainingInBottle(1);
+        generalHandlerAdd.addHandler(allOnes);
+
+        generalHandlerAdd.run();
 
         //Generating list of single handlers and running general handler
         System.out.println("Generating list of single handlers and running general handler----------------------");

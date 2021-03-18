@@ -89,8 +89,8 @@ public class PrescriptionExpirationAlert {
             alert += "!";
         }
 
-        System.out.println(alert);
-        System.out.println();
+        //System.out.println(alert);
+        //System.out.println();
 
         return alert;
     }

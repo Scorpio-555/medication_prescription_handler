@@ -28,7 +28,11 @@ public class Main {
             tempHandler.set_prescriptionName("med" + letter);
             letter++;
             tempHandler.setPrescriptionExpiration(year, month, day);
-
+            tempHandler.setMaxPillCountInBottle(1);
+            tempHandler.setRefillsRemaining(9 - i);
+            tempHandler.setMilligramDosageInASingleTablet(1);
+            tempHandler.setTakeThisManyTabletsAtaTime(1);
+            tempHandler.setTakeMedicationThisManyTimesADay(1);
             handlerList.add(tempHandler);
         }
 
@@ -173,13 +177,13 @@ public class Main {
         System.out.println();
 
         try {
-            badInputHandler.setMilligramDosageInASinglePilTablet(0);
+            badInputHandler.setMilligramDosageInASingleTablet(0);
         } catch (Exception e) {
             assertTrue("expected different error message for setting milligramDosageInASinglePill to be < 1",e.getMessage().equals("Dosage of a single pill must be greater than zero"));
         }
 
         try {
-            badInputHandler.setMilligramDosageInASinglePilTablet(-1);
+            badInputHandler.setMilligramDosageInASingleTablet(-1);
         } catch (Exception e) {
             assertTrue("expected different error message for setting milligramDosageInASinglePill to be < 1",e.getMessage().equals("Dosage of a single pill must be greater than zero"));
         }
@@ -220,28 +224,67 @@ public class Main {
         MedicationPrescriptionGeneralHandler generalHandlerAdd = new MedicationPrescriptionGeneralHandler();
 
         SingleMedicationPrescriptionHandler allOnes = new SingleMedicationPrescriptionHandler();
-        generalHandlerAdd.addHandler(allOnes);
+        try{
+            generalHandlerAdd.addHandler(allOnes);
+        } catch (Exception e){
+            System.out.println(e.getMessage());
+        }
 
         allOnes.set_prescriptionName("allOnes");
-        generalHandlerAdd.addHandler(allOnes);
+        try{
+            generalHandlerAdd.addHandler(allOnes);
+        } catch (Exception e){
+            System.out.println(e.getMessage());
+        }
 
         allOnes.setPrescriptionExpiration(today.getYear(), today.getMonthValue(), today.getDayOfMonth());
-        generalHandlerAdd.addHandler(allOnes);
+        try{
+            generalHandlerAdd.addHandler(allOnes);
+        } catch (Exception e){
+            System.out.println(e.getMessage());
+        }
 
         allOnes.setTakeThisManyTabletsAtaTime(1);
-        generalHandlerAdd.addHandler(allOnes);
+        try{
+            generalHandlerAdd.addHandler(allOnes);
+        } catch (Exception e){
+            System.out.println(e.getMessage());
+        }
 
         allOnes.setTakeMedicationThisManyTimesADay(1);
-        generalHandlerAdd.addHandler(allOnes);
+        try{
+            generalHandlerAdd.addHandler(allOnes);
+        } catch (Exception e){
+            System.out.println(e.getMessage());
+        }
 
-        allOnes.setMilligramDosageInASinglePilTablet(1);
-        generalHandlerAdd.addHandler(allOnes);
+        allOnes.setMilligramDosageInASingleTablet(1);
+        try{
+            generalHandlerAdd.addHandler(allOnes);
+        } catch (Exception e){
+            System.out.println(e.getMessage());
+        }
 
-        allOnes.setPillsRemainingInBottle(1);
-        generalHandlerAdd.addHandler(allOnes);
+        try{
+            allOnes.setRefillsRemaining(0);
+        } catch(Exception e){
+            System.out.println(e.getMessage());
+        }
 
-        generalHandlerAdd.addHandler(allOnes);
+        allOnes.setMaxPillCountInBottle(1);
+        try{
+            generalHandlerAdd.addHandler(allOnes);
+        } catch (Exception e){
+            System.out.println(e.getMessage());
+        }
 
+        try{
+            generalHandlerAdd.addHandler(allOnes);
+        } catch (Exception e){
+            System.out.println(e.getMessage());
+        }
+
+        System.out.println(allOnes.sendLowPillCountAlert());
         generalHandlerAdd.run();
 
         //Generating list of single handlers and running general handler
@@ -252,6 +295,9 @@ public class Main {
 
         MedicationPrescriptionGeneralHandler generalHandler = new MedicationPrescriptionGeneralHandler(list);
         generalHandler.run();
+
+        SingleMedicationPrescriptionHandler medFCLone = generalHandler.cloneFromList("medF", 1);
+        System.out.println(medFCLone.getRefillsRemaining());
 
     }
 }

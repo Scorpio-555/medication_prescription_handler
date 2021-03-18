@@ -12,10 +12,14 @@ public class SingleMedicationPrescriptionHandler {
     private int _takeMedicationThisManyTimesADay;
     private int _milligramDosageInASingleTablet;
     private int _takeThisManyTabletsAtaTime;
+    private int _maxPillCountInBottle;
     private int _pillsRemainingInBottle;
+    private int _refillsRemaining;
 
     public SingleMedicationPrescriptionHandler(){
+        _maxPillCountInBottle = -1;
         _pillsRemainingInBottle = -1;
+        _refillsRemaining = -1;
     }
 
     public String getPrescriptionName(){
@@ -27,7 +31,9 @@ public class SingleMedicationPrescriptionHandler {
     public int getTakeMedicationThisManyTimesADay(){return _takeMedicationThisManyTimesADay;}
     public int getMilligramDosageInASingleTablet(){return _milligramDosageInASingleTablet;}
     public int getTakeThisManyTabletsAtaTime(){return _takeThisManyTabletsAtaTime;}
+    public int getMaxPillCountInBottle(){return _maxPillCountInBottle;}
     public int getPillsRemainingInBottle(){return _pillsRemainingInBottle;}
+    public int getRefillsRemaining(){return _refillsRemaining;}
 
     public void setTakeMedicationThisManyTimesADay(int takeMedicationThisManyTimesADay) throws Exception{
         if(takeMedicationThisManyTimesADay < 1){
@@ -40,7 +46,7 @@ public class SingleMedicationPrescriptionHandler {
         }
     }
 
-    public void setMilligramDosageInASinglePilTablet(int milligramDosageInASinglePill) throws Exception{
+    public void setMilligramDosageInASingleTablet(int milligramDosageInASinglePill) throws Exception{
         if(milligramDosageInASinglePill < 1){
             MedHandlerException singlePillDosageIsLessThanOneMg = new MedHandlerException("Dosage of a single pill must be greater than zero");
             System.out.println(singlePillDosageIsLessThanOneMg.getMessage());
@@ -61,6 +67,18 @@ public class SingleMedicationPrescriptionHandler {
             _takeThisManyTabletsAtaTime = takeThisManyTabletsAtaTime;
         }
     }
+
+    public void setMaxPillCountInBottle(int maxPillCountInBottle) throws Exception{
+        if(maxPillCountInBottle < 0){
+            MedHandlerException maxPillCountIsLessThanZero = new MedHandlerException("number of tablets that comes in bottle can't be negative");
+            System.out.println(maxPillCountIsLessThanZero.getMessage());
+            System.out.println();
+            throw maxPillCountIsLessThanZero;
+        } else {
+            _maxPillCountInBottle = maxPillCountInBottle;
+        }
+    }
+
     public void setPillsRemainingInBottle(int pillsRemainingInBottle) throws Exception{
         if(pillsRemainingInBottle < 0){
             MedHandlerException pillCountIsLessThanZero = new MedHandlerException("Pills remaining can't be negative");
@@ -69,6 +87,17 @@ public class SingleMedicationPrescriptionHandler {
             throw pillCountIsLessThanZero;
         } else {
             _pillsRemainingInBottle = pillsRemainingInBottle;
+        }
+    }
+
+    public void setRefillsRemaining(int refillsRemaining) throws Exception{
+        if(refillsRemaining < 0){
+            MedHandlerException refillCountIsLessThanZero = new MedHandlerException("number of refills can't be negative");
+            System.out.println(refillCountIsLessThanZero.getMessage());
+            System.out.println();
+            throw refillCountIsLessThanZero;
+        } else {
+            _refillsRemaining = refillsRemaining;
         }
     }
 
@@ -110,6 +139,70 @@ public class SingleMedicationPrescriptionHandler {
         }
     }
 
+    public SingleMedicationPrescriptionHandler clone() {
+        SingleMedicationPrescriptionHandler clone = new SingleMedicationPrescriptionHandler();
+
+        try {
+            clone.set_prescriptionName(_prescriptionName);
+        } catch (Exception e) {
+            //e.printStackTrace();
+        }
+        LocalDate prescriptionExpiration = _prescriptionExpiration;
+        int year = prescriptionExpiration.getYear();
+        int month = prescriptionExpiration.getMonthValue();
+        int day = prescriptionExpiration.getDayOfMonth();
+        try {
+            clone.setPrescriptionExpiration(year, month, day);
+        } catch (Exception e) {
+            //e.printStackTrace();
+        }
+        try {
+            clone.setTakeThisManyTabletsAtaTime(_takeThisManyTabletsAtaTime);
+        } catch (Exception e) {
+            //e.printStackTrace();
+        }
+        try {
+            clone.setTakeMedicationThisManyTimesADay(_takeMedicationThisManyTimesADay);
+        } catch (Exception e) {
+            //e.printStackTrace();
+        }
+        try {
+            clone.setMilligramDosageInASingleTablet(_milligramDosageInASingleTablet);
+        } catch (Exception e) {
+            //e.printStackTrace();
+        }
+        try {
+            clone.setMaxPillCountInBottle(_maxPillCountInBottle);
+        } catch (Exception e) {
+            //e.printStackTrace();
+        }
+        try {
+            clone.setPillsRemainingInBottle(_pillsRemainingInBottle);
+        } catch (Exception e) {
+            //e.printStackTrace();
+        }
+        try{
+            clone.setRefillsRemaining(_refillsRemaining);
+        } catch(Exception e){
+
+        }
+
+        return clone;
+    }
+
+    public boolean isCloseToRunningOut(){
+        if(_pillsRemainingInBottle == -1){
+         _pillsRemainingInBottle = _maxPillCountInBottle;
+        }
+
+        int pillsLeftFiveDaysFromNow = _pillsRemainingInBottle - (_takeThisManyTabletsAtaTime * _takeMedicationThisManyTimesADay * 5);
+        if(pillsLeftFiveDaysFromNow < 1){
+            return true;
+        }else {
+            return false;
+        }
+    }
+
     public boolean isCloseToPrescriptionExpiration(){
         boolean isCloseToPrescriptionExpiration = false;
 
@@ -127,23 +220,22 @@ public class SingleMedicationPrescriptionHandler {
         return isCloseToPrescriptionExpiration;
     }
 
-    public void sendPrescriptionExpirationAlert() {
+    public String sendPrescriptionExpirationAlert() {
         LocalDate today = LocalDate.now();
         Period timeLeft = Period.between(today, _prescriptionExpiration);
         PrescriptionExpirationAlert alert = new PrescriptionExpirationAlert(timeLeft, _prescriptionName);
-        alert.sendAlert();
+        return alert.sendAlert();
     }
 
-    public void sendTakePillAlert(){
-        System.out.println("Remember to take your pill for " + _prescriptionName);
-        System.out.println();
+    public String sendLowPillCountAlert(){
+        String message = _prescriptionName + " pill count is running low";
+        if(_refillsRemaining == 0){
+            message = message + " and you have no more refills";
+        }
+        return message;
     }
 
-    public void sendLowPillCountAlert(){
-
-    }
-
-    public boolean isValid() {
+    public boolean isValid() throws MedHandlerException {
         boolean isValid = false;
 
         if(     (_prescriptionName != null) &&
@@ -151,27 +243,30 @@ public class SingleMedicationPrescriptionHandler {
                 (_takeThisManyTabletsAtaTime != 0) &&
                 (_milligramDosageInASingleTablet != 0) &&
                 (_takeMedicationThisManyTimesADay != 0) &&
-                (_pillsRemainingInBottle != -1)
+                (_maxPillCountInBottle != -1)
         ){
+            if(_pillsRemainingInBottle == -1){
+                _pillsRemainingInBottle = _maxPillCountInBottle;
+            }
             isValid = true;
         } else if(_prescriptionName == null){
-            System.out.println("Must enter prescription name");
-            System.out.println();
+            MedHandlerException nullName = new MedHandlerException("Must enter prescription name");
+            throw nullName;
         } else if(_prescriptionExpiration == null){
-            System.out.println("Must enter prescription expiration");
-            System.out.println();
+            MedHandlerException nullExpiration = new MedHandlerException("Must enter prescription expiration");
+            throw nullExpiration;
         } else if(_takeThisManyTabletsAtaTime == 0){
-            System.out.println("Must enter number of tablets to take");
-            System.out.println();
+            MedHandlerException enterNumTablets = new MedHandlerException("Must enter number of tablets to take");
+            throw enterNumTablets;
         } else if(_takeMedicationThisManyTimesADay == 0){
-            System.out.println("Must enter number of times a day to take medication");
-            System.out.println();
+            MedHandlerException enterNumTimesADay = new MedHandlerException("Must enter number of times a day to take medication");
+            throw enterNumTimesADay;
         }else if(_milligramDosageInASingleTablet == 0){
-            System.out.println("Must enter milligram dosage in a single tablet");
-            System.out.println();
-        } else if(_pillsRemainingInBottle == -1){
-            System.out.println("Must enter number of tablets remaining");
-            System.out.println();
+            MedHandlerException enterDosage = new MedHandlerException("Must enter milligram dosage in a single tablet");
+            throw enterDosage;
+        } else if(_maxPillCountInBottle == -1){
+            MedHandlerException enterTabletsRemaining = new MedHandlerException("Must enter number of tablets that come in bottle");
+            throw enterTabletsRemaining;
         }
 
         return isValid;

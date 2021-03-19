@@ -100,7 +100,9 @@ public class SingleMedicationPrescriptionHandler {
         Matcher matcher = pattern.matcher(prescriptionName);
         boolean containsBadCharacters = matcher.find();
 
-       if(prescriptionName.isEmpty() || prescriptionName.isBlank()){
+        prescriptionName = prescriptionName.trim();
+
+       if(prescriptionName.isEmpty()){
            Exception nullPrescriptionName = new Exception("Prescription Name must be filled out");
            throw nullPrescriptionName;
         }else if(prescriptionName.length() < 4) {

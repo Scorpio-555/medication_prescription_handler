@@ -1,28 +1,64 @@
 package medication_prescription_handler;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.Period;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MedicationPrescriptionGeneralHandler {
+public class MedicationPrescriptionGeneralHandler implements Runnable{
     private List<SingleMedicationPrescriptionHandler> prescriptionList;
+    private LocalDateTime lastDateAndTimeTakePillsAlertWasSent;
 
     MedicationPrescriptionGeneralHandler(){
         prescriptionList = new ArrayList<>();
     }
 
-    MedicationPrescriptionGeneralHandler(List<SingleMedicationPrescriptionHandler> list){
-        prescriptionList = list;
+    private int getMaxTimesADay(){
+        int maxTimesADay = 0;
+        for(SingleMedicationPrescriptionHandler handler: prescriptionList){
+            if(handler.getTakeMedicationThisManyTimesADay() > maxTimesADay){
+                maxTimesADay = handler.getTakeMedicationThisManyTimesADay();
+            }
+        }
+        return maxTimesADay;
     }
 
     private String sendTakePillAlert(){
-        return "Remember to take your pills";
+        String takePillsMessage = new String();
+        LocalDate today = LocalDate.now();
+
+        if( ! prescriptionList.isEmpty()){
+            if(lastDateAndTimeTakePillsAlertWasSent == null){
+                lastDateAndTimeTakePillsAlertWasSent = LocalDateTime.now();
+                takePillsMessage = "Remember to take your pills";
+            } else if (lastDateAndTimeTakePillsAlertWasSent.toLocalDate().equals(today)){
+                int numberOfHoursBetweenAlerts = 24 / getMaxTimesADay();
+                LocalTime rightNow = LocalTime.now();
+                LocalTime timeOfLastAlert = lastDateAndTimeTakePillsAlertWasSent.toLocalTime();
+                int currentHour = rightNow.getHour();
+                int hourOfLastAlert = timeOfLastAlert.getHour();
+
+                if((currentHour - hourOfLastAlert) >= numberOfHoursBetweenAlerts){
+                    lastDateAndTimeTakePillsAlertWasSent = LocalDateTime.now();
+                    takePillsMessage = "Remember to take your pills";
+                }
+
+            } else {
+                lastDateAndTimeTakePillsAlertWasSent = LocalDateTime.now();
+                takePillsMessage = "Remember to take your pills";
+            }
+        }
+
+        return takePillsMessage;
     }
 
     private List<String> sendPrescriptionExpirationAlerts(){
         List<String> prescriptionExpirationMessages = new ArrayList<>();
         for(SingleMedicationPrescriptionHandler handler: prescriptionList){
-            if(handler.isCloseToPrescriptionExpiration()){
+            if(handler.isCloseToPrescriptionExpiration() && handler.haveNotAlreadySentExpirationAlertToday()){
+                handler.setDateExpirationAlertWasLastSent(LocalDate.now());
                 prescriptionExpirationMessages.add(handler.sendPrescriptionExpirationAlert());
             }
         }
@@ -33,7 +69,8 @@ public class MedicationPrescriptionGeneralHandler {
     private List<String> sendLowPillCountAlerts(){
         List<String> lowPillCountMessages = new ArrayList<>();
         for(SingleMedicationPrescriptionHandler handler: prescriptionList){
-            if(handler.isCloseToRunningOut()){
+            if(handler.isCloseToRunningOut() && handler.haveNotAlreadySentPillCountAlertToday()){
+                handler.setDatePillCountAlertWasLastSent(LocalDate.now());
                 lowPillCountMessages.add(handler.sendLowPillCountAlert());
             }
         }
@@ -52,6 +89,16 @@ public class MedicationPrescriptionGeneralHandler {
         }
 
         return clone;
+    }
+
+    public List<SingleMedicationPrescriptionHandler> cloneAll(){
+        List<SingleMedicationPrescriptionHandler> cloneList = new ArrayList<>();
+
+        for(SingleMedicationPrescriptionHandler handler: prescriptionList){
+            cloneList.add(handler.clone());
+        }
+
+        return cloneList;
     }
 
     public void addHandler(SingleMedicationPrescriptionHandler newHandler) throws Exception {
@@ -118,6 +165,13 @@ public class MedicationPrescriptionGeneralHandler {
         prescriptionList = tempList;
     }
 
+    public void replace(String prescriptionNameOfObsolete, int dosageOfObsolete, SingleMedicationPrescriptionHandler replacement) throws Exception {
+        if(replacement.isValid()){
+            delete(prescriptionNameOfObsolete,dosageOfObsolete);
+            addHandler(replacement);
+        }
+    }
+
     public void refillBottle(String prescriptionName, int dosage){
 
         for(SingleMedicationPrescriptionHandler handler: prescriptionList) {
@@ -142,9 +196,20 @@ public class MedicationPrescriptionGeneralHandler {
         masterListOfMessages.addAll(sendPrescriptionExpirationAlerts());
         masterListOfMessages.addAll(sendLowPillCountAlerts());
 
+        List<String> tempList = new ArrayList<>();
         for(String message: masterListOfMessages){
-            System.out.println(message);
-            System.out.println();
+            if(! message.isEmpty()){
+                tempList.add(message);
+            }
+        }
+
+        masterListOfMessages = tempList;
+
+        if(!masterListOfMessages.isEmpty()){
+            for(String message: masterListOfMessages){
+                System.out.println(message);
+                System.out.println();
+            }
         }
     }
 }

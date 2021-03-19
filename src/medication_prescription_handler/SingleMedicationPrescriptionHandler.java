@@ -16,6 +16,9 @@ public class SingleMedicationPrescriptionHandler {
     private int _pillsRemainingInBottle;
     private int _refillsRemaining;
 
+    LocalDate _datePillCountAlertWasLastSent;
+    LocalDate _dateExpirationAlertWasLastSent;
+
     public SingleMedicationPrescriptionHandler(){
         _maxPillCountInBottle = -1;
         _pillsRemainingInBottle = -1;
@@ -101,7 +104,7 @@ public class SingleMedicationPrescriptionHandler {
         }
     }
 
-    public void set_prescriptionName(String prescriptionName) throws Exception{
+    public void setPrescriptionName(String prescriptionName) throws Exception{
 
         Pattern pattern = Pattern.compile("[^A-Za-z]");
         Matcher matcher = pattern.matcher(prescriptionName);
@@ -139,11 +142,19 @@ public class SingleMedicationPrescriptionHandler {
         }
     }
 
+    public void setDatePillCountAlertWasLastSent(LocalDate datePillCountAlertWasLastSent){
+        _datePillCountAlertWasLastSent = datePillCountAlertWasLastSent;
+    }
+
+    public void setDateExpirationAlertWasLastSent(LocalDate dateExpirationAlertWasLastSent){
+        _dateExpirationAlertWasLastSent = dateExpirationAlertWasLastSent;
+    }
+
     public SingleMedicationPrescriptionHandler clone() {
         SingleMedicationPrescriptionHandler clone = new SingleMedicationPrescriptionHandler();
 
         try {
-            clone.set_prescriptionName(_prescriptionName);
+            clone.setPrescriptionName(_prescriptionName);
         } catch (Exception e) {
             //e.printStackTrace();
         }
@@ -233,6 +244,34 @@ public class SingleMedicationPrescriptionHandler {
             message = message + " and you have no more refills";
         }
         return message;
+    }
+
+    public boolean haveNotAlreadySentPillCountAlertToday(){
+        if(_datePillCountAlertWasLastSent == null){
+            return true;
+        } else {
+            Period allZeros = Period.ZERO;
+            Period timeSinceLastAlert = Period.between(LocalDate.now(), _datePillCountAlertWasLastSent);
+            if(timeSinceLastAlert.equals(allZeros)){
+                return false;
+            } else{
+                return true;
+            }
+        }
+    }
+
+    public boolean haveNotAlreadySentExpirationAlertToday(){
+        if(_dateExpirationAlertWasLastSent == null){
+            return true;
+        } else {
+            Period allZeros = Period.ZERO;
+            Period timeSinceLastAlert = Period.between(LocalDate.now(), _dateExpirationAlertWasLastSent);
+            if(timeSinceLastAlert.equals(allZeros)){
+                return false;
+            } else{
+                return true;
+            }
+        }
     }
 
     public boolean isValid() throws MedHandlerException {

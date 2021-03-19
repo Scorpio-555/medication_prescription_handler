@@ -117,7 +117,7 @@ public class MedicationPrescriptionGeneralHandler implements Runnable{
             if(newHandlerIsUnique){
                 prescriptionList.add(newHandler.clone());
             } else{
-                MedHandlerException duplicate = new MedHandlerException("Didn't save! You already have saved a prescription of the same name and dosage");
+                Exception duplicate = new Exception("Didn't save! You already have saved a prescription of the same name and dosage");
                 throw duplicate;
             }
 

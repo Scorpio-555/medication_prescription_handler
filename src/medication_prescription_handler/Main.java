@@ -110,6 +110,7 @@ public class Main {
             String nullString = new String();
             badInputHandler.setPrescriptionName(nullString);
         }catch (Exception e){
+            System.out.println(e);
             assertTrue("expected different error message for setting empty/blank prescription name",e.getMessage().equals("Prescription Name must be filled out"));
         }
         assertTrue(badInputHandler.getPrescriptionName() == null);
@@ -117,6 +118,7 @@ public class Main {
         try{
             badInputHandler.setPrescriptionName("");
         }catch (Exception e){
+            System.out.println(e);
             assertTrue("expected different error message for setting empty/blank prescription name",e.getMessage().equals("Prescription Name must be filled out"));
         }
         assertTrue(badInputHandler.getPrescriptionName() == null);
@@ -124,6 +126,7 @@ public class Main {
         try{
             badInputHandler.setPrescriptionName("          ");
         }catch (Exception e){
+            System.out.println(e);
             assertTrue("expected different error message for setting empty/blank prescription name",e.getMessage().equals("Prescription Name must be filled out"));
         }
         assertTrue(badInputHandler.getPrescriptionName() == null);
@@ -131,6 +134,7 @@ public class Main {
         try{
             badInputHandler.setPrescriptionName("abc");
         }catch (Exception e){
+            System.out.println(e);
             assertTrue("expected different error message for setting prescription name with too few characters",e.getMessage().equals("Prescription Name must be at least four letters long"));
         }
         assertTrue(badInputHandler.getPrescriptionName() == null);
@@ -138,6 +142,7 @@ public class Main {
         try{
             badInputHandler.setPrescriptionName("abc1!");
         }catch (Exception e){
+            System.out.println(e);
             assertTrue("expected different error message for setting prescription name with non-letter characters",e.getMessage().equals("Prescription Name must only contain letters"));
         }
         assertTrue(badInputHandler.getPrescriptionName() == null);
@@ -150,6 +155,7 @@ public class Main {
         try {
             badInputHandler.setPrescriptionExpiration(2021, 3, 33);
         } catch (Exception e) {
+            System.out.println(e);
             assertTrue("expected different error message for adding bad date",e.getMessage().equals("Invalid date"));
         }
         assertTrue(badInputHandler.getPrescriptionExpiration() == null);
@@ -161,6 +167,7 @@ public class Main {
         try {
             badInputHandler.setTakeMedicationThisManyTimesADay(0);
         } catch (Exception e) {
+            System.out.println(e);
             assertTrue("expected different error message for setting takeMedicationThisManyTimesADay to be < 1",e.getMessage().equals("Number of times a day to take medication must be greater than zero"));
         }
         assertTrue("times taken in a day should be zero",badInputHandler.getTakeMedicationThisManyTimesADay() == 0);
@@ -168,6 +175,7 @@ public class Main {
         try {
             badInputHandler.setTakeMedicationThisManyTimesADay(-1);
         } catch (Exception e) {
+            System.out.println(e);
             assertTrue("expected different error message for setting takeMedicationThisManyTimesADay to be < 1",e.getMessage().equals("Number of times a day to take medication must be greater than zero"));
         }
         assertTrue("times taken in a day should be zero",badInputHandler.getTakeMedicationThisManyTimesADay() == 0);
@@ -179,12 +187,14 @@ public class Main {
         try {
             badInputHandler.setMilligramDosageInASingleTablet(0);
         } catch (Exception e) {
+            System.out.println(e);
             assertTrue("expected different error message for setting milligramDosageInASinglePill to be < 1",e.getMessage().equals("Dosage of a single pill must be greater than zero"));
         }
 
         try {
             badInputHandler.setMilligramDosageInASingleTablet(-1);
         } catch (Exception e) {
+            System.out.println(e);
             assertTrue("expected different error message for setting milligramDosageInASinglePill to be < 1",e.getMessage().equals("Dosage of a single pill must be greater than zero"));
         }
         assertTrue("mg dosage should be zero",badInputHandler.getMilligramDosageInASingleTablet() == 0);
@@ -299,6 +309,13 @@ public class Main {
 
         generalHandler.run();
         generalHandler.run();
+
+        SingleMedicationPrescriptionHandler newHandler = new SingleMedicationPrescriptionHandler();
+        try{
+            newHandler.setTakeMedicationThisManyTimesADay(0);
+        } catch (Exception e){
+            System.out.println(e.getMessage());
+        }
 
     }
 }
